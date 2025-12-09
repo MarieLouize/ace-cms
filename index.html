@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ace Content Studio | Enterprise</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Poppins:wght@400;600;700&family=Patrick+Hand&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/cheatsheet.css">
+    <link rel="stylesheet" href="css/problemsheet.css">
+    <link rel="stylesheet" href="css/preview.css">
+    <link rel="stylesheet" href="css/studio.css">
+    <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="logo"><span>⚡ Ace</span> <span class="desktop-only">Content Studio</span></div>
+        <div class="nav-pills">
+            <div class="nav-item active" onclick="App.nav('ingest')">Ingest</div>
+            <div class="nav-item" onclick="App.nav('library')">Library</div>
+        </div>
+        <div class="desktop-only" style="font-size: 12px; color: var(--text-muted);">v3.0</div>
+    </header>
+
+    <div class="workspace">
+        
+        <div id="view-ingest" class="view active">
+            <div class="view-container">
+                <div class="glass-panel">
+                    <div class="panel-header-mobile">
+                        <h2>📄 Ingestion</h2>
+                        <div class="flex gap-2">
+                             <button class="btn btn-ghost btn-icon-only" onclick="Ingest.paste()" title="Paste">📋</button>
+                             <button class="btn btn-ghost btn-icon-only" onclick="Ingest.clean()" title="Clean">✨</button>
+                             <button class="btn btn-ghost btn-icon-only" onclick="Ingest.reset()" title="Reset">🔄</button>
+                        </div>
+                    </div>
+                    
+                    <div class="ingest-grid">
+                        <div class="ingest-controls">
+                            <div class="drop-zone" onclick="document.getElementById('fileIn').click()">
+                                <span style="font-size: 30px; margin-bottom: 5px;">📂</span>
+                                <div style="font-weight: 600;">Upload File</div>
+                                <input type="file" id="fileIn" hidden accept=".pdf,.docx">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="meta-tag">Course Code</label>
+                                <input type="text" id="metaCourse" class="input-field" placeholder="BIO101">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="meta-tag">Split Pattern</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="headerPattern" class="input-field" placeholder="e.g. Unit 1">
+                                    <button class="btn btn-primary" onclick="Ingest.analyze()">Analyze</button>
+                                </div>
+                            </div>
+                            
+                            <div id="uploadAction" class="hidden mobile-sticky-bottom">
+                                 <button class="btn btn-success w-full" onclick="Ingest.upload()">
+                                    🚀 Upload (<span id="stageCount">0</span>)
+                                 </button>
+                            </div>
+                        </div>
+
+                        <div class="ingest-editor">
+                            <div id="rawMode">
+                                <textarea id="rawText" class="input-field" placeholder="Paste raw text here..."></textarea>
+                            </div>
+                            <div id="stagedMode" class="hidden">
+                                <div id="accordionContainer" class="ingest-results"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-library" class="view">
+            <div class="view-container">
+                <div class="filter-bar">
+                    <input type="text" id="searchCourse" class="input-field" placeholder="Search Course..." onkeyup="if(event.key==='Enter') Library.fetch()">
+                    <button class="btn btn-primary" onclick="Library.fetch()">Fetch</button>
+                </div>
+
+                <div id="libraryGrid" class="chapter-grid">
+                    <div class="empty-state">Enter a course code to load.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="studio" class="studio-modal">
+        <div class="studio-toolbar">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <button class="btn-mini desktop-hidden" onclick="Studio.close()">←</button>
+                <h3 id="stTitle" class="truncate-text">Editor</h3>
+                <div id="stBadge" class="status-pill">MODE</div>
+            </div>
+            
+            <div id="stControls" class="flex gap-2"></div>
+
+            <div class="flex gap-2 desktop-only">
+                <button class="btn btn-ghost" onclick="Studio.close()">Cancel</button>
+                <button class="btn btn-primary" onclick="Studio.save()">Save</button>
+            </div>
+        </div>
+
+        <div class="mobile-tabs desktop-hidden">
+            <div class="mobile-tab active" onclick="Studio.switchMobileTab('edit')" id="tab-edit">✏️ Editor</div>
+            <div class="mobile-tab" onclick="Studio.switchMobileTab('preview')" id="tab-preview">👁️ Preview</div>
+        </div>
+
+        <div class="studio-workspace">
+            <div class="col-edit mobile-view active" id="view-edit">
+                <div class="editor-tools" id="editorTools"></div>
+                <textarea id="codeEditor" spellcheck="false" placeholder="Enter content..."></textarea>
+                <div id="visualBuilder" class="hidden"></div>
+                <div id="jsonStatus" class="json-status hidden">Validating...</div>
+                
+                <div class="mobile-fab desktop-hidden" onclick="Studio.save()">💾</div>
+            </div>
+
+            <div class="col-preview mobile-view" id="view-preview">
+                <div id="previewContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <div id="app-modal" class="modal-overlay"></div>
+    <div id="printable-area"></div>
+
+    <div id="lockScreen" class="lock-overlay">
+      <div class="lock-card">
+          <div class="lock-icon">🔒</div>
+          <h2 style="color:white; margin-bottom:10px;">Studio Access</h2>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Enter the passcode to access the workspace.</p>
+          
+          <input type="password" id="passcodeInput" placeholder="••••" maxlength="10" 
+                 onkeyup="if(event.key==='Enter') App.unlock()">
+          
+          <button class="btn btn-primary w-full" onclick="App.unlock()">Unlock</button>
+          <div id="lockMsg"></div>
+      </div>
+  </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/ingest.js"></script>
+    <script src="js/library.js"></script>
+    <script src="js/studio.js"></script>
+    <script src="js/cheatsheet.js"></script>
+    <script src="js/problemsheet.js"></script>
+    <script src="js/flashcards.js"></script>
+    <script src="js/topics.js"></script>
+    <script src="js/preview-renderer.js"></script>
+    <script>
+      // Start the App (Checks lock first)
+      App.init(); 
+  </script>
+    <script>Ingest.init();</script>
+</body>
+</html>

@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Content Renderer</title>
+    <style>
+        /* --- PURPLE DESIGN SYSTEM VARIABLES --- */
+        :root {
+            --primary-dark: #1a0a29;
+            --primary-purple: #24143e;
+            --purple-highlights: #8d2ddf;
+            --muted-purple: rgba(155, 55, 240, 0.38);
+            --primary-peach: #ff9d8d;
+            --peach-glow: rgba(255, 157, 141, 0.4);
+            --light-text: #ffd8e8;
+            --grey-text: #ccb3e8;
+            --darker-purple: #180618;
+            --glass-bg: rgba(30, 15, 45, 0.7);
+            --glass-border: rgba(141, 45, 223, 0.3);
+            --success-green: #00e676;
+            --error-red: #ff5252;
+            --info-cyan: #06b6d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            background: linear-gradient(135deg, var(--darker-purple) 0%, var(--primary-dark) 100%);
+            color: var(--light-text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- INPUT PANEL --- */
+        .input-panel {
+            background: rgba(30, 15, 45, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .input-panel h2 {
+            font-family: 'Courier New', monospace;
+            color: var(--primary-peach);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .json-input {
+            width: 100%;
+            height: 500px;
+            background: rgba(20, 10, 30, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--light-text);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            margin-bottom: 1.5rem;
+        }
+
+        .json-input:focus {
+            outline: none;
+            border-color: var(--purple-highlights);
+            box-shadow: 0 0 0 2px rgba(141, 45, 223, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple-highlights), var(--primary-peach));
+            color: var(--darker-purple);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(141, 45, 223, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--light-text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--purple-highlights);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-red);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: var(--error-red);
+            font-family: 'Courier New', monospace;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* --- RENDERER --- */
+        .renderer {
+            background: rgba(30, 15, 45, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            overflow-y: auto;
+            max-height: calc(100vh - 40px);
+        }
+
+        .renderer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .course-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--purple-highlights), var(--primary-peach));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--grey-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--purple-highlights);
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* --- COMMON ACADEMIC STYLES --- */
+        .module {
+            margin-bottom: 3rem;
+        }
+
+        .module-title {
+            font-family: 'Courier New', monospace;
+            color: var(--primary-peach);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        /* 1. TABLE & DATA STYLES */
+        .dataTable {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+        }
+
+        .dataTable table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tableResponsive {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        .tableHeader {
+            background: rgba(141, 45, 223, 0.2);
+        }
+
+        .tableRow:hover {
+            background: rgba(255, 157, 141, 0.1);
+        }
+
+        .tableCell {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        .tableCaption {
+            font-style: italic;
+            color: var(--grey-text);
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .dataGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .comparisonTable {
+            border: 2px solid var(--purple-highlights);
+        }
+
+        .comparisonTable .tableHeader {
+            background: linear-gradient(90deg, 
+                rgba(141, 45, 223, 0.2), 
+                rgba(255, 157, 141, 0.2));
+        }
+
+        .truthTable {
+            font-family: 'Courier New', monospace;
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+
+        .truthTable .tableCell {
+            text-align: center;
+        }
+
+        .statisticsTable {
+            background: linear-gradient(135deg, 
+                rgba(6, 182, 212, 0.1), 
+                rgba(16, 185, 129, 0.1));
+        }
+
+        .matrix {
+            display: inline-grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 2px solid #6366f1;
+            margin: 1rem;
+            background: rgba(30, 40, 60, 0.5);
+        }
+
+        .matrixCell {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cambria Math', 'Latin Modern Math', serif;
+        }
+
+        /* 2. MATHEMATICAL CONTENT */
+        .mathBlock {
+            background: rgba(30, 40, 60, 0.8);
+            border-left: 4px solid #6366f1;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+            font-family: 'Cambria Math', 'Latin Modern Math', 'STIX Two Math', serif;
+        }
+
+        .inlineMath {
+            font-family: 'Cambria Math', serif;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            font-style: normal;
+        }
+
+        .equation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(30, 40, 60, 0.6);
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .equationContent {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .equationNumber {
+            color: var(--grey-text);
+            font-style: italic;
+            min-width: 3rem;
+            text-align: right;
+            font-family: 'Merriweather', serif;
+        }
+
+        .proof {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .proofHeader {
+            font-family: 'Courier New', monospace;
+            color: #10b981;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .proofStep {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .proofStep::before {
+            content: '∴';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .lemma {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .corollary {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 4px solid #8b5cf6;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .axiom, .postulate {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed var(--purple-highlights);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+            font-style: italic;
+        }
+
+        .formula {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Cambria Math', serif;
+        }
+
+        /* 3. SCIENTIFIC & TECHNICAL */
+        .chemicalEquation {
+            text-align: center;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            background: linear-gradient(135deg, 
+                rgba(6, 182, 212, 0.1), 
+                rgba(16, 185, 129, 0.1));
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-family: 'Cambria Math', serif;
+        }
+
+        .circuitDiagram {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flowChart {
+            padding: 2rem;
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .flowChart::before {
+            content: '↳';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--purple-highlights);
+            font-size: 2rem;
+        }
+
+        .pseudocode {
+            background: #1a1a2e;
+            border: 1px solid #2d2d4d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .algorithm {
+            border: 2px solid var(--purple-highlights);
+            border-radius: 12px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .algorithmHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            background: rgba(141, 45, 223, 0.2);
+            border-bottom: 1px solid var(--glass-border);
+            font-family: 'Courier New', monospace;
+        }
+
+        .algorithmTitle {
+            font-weight: 700;
+            color: var(--light-text);
+        }
+
+        .bigONotation {
+            font-family: 'Courier New', monospace;
+            color: var(--primary-peach);
+            background: rgba(255, 157, 141, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        /* 4. RESEARCH & ACADEMIC */
+        .citation {
+            color: var(--info-cyan);
+            font-style: italic;
+            padding-left: 1rem;
+            border-left: 2px solid var(--info-cyan);
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        .bibliography {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+        }
+
+        .bibliographyItem {
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .footnote, .endnote {
+            font-size: 0.9rem;
+            color: var(--grey-text);
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--glass-border);
+            font-style: italic;
+        }
+
+        .hypothesis {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--error-red);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .hypothesis h4 {
+            color: var(--error-red);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .methodology {
+            background: rgba(6, 182, 212, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+        }
+
+        .methodology h4 {
+            color: var(--info-cyan);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1rem;
+        }
+
+        .results, .discussion {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+        }
+
+        .results h4, .discussion h4 {
+            color: #10b981;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1rem;
+        }
+
+        .abstract {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+            font-style: italic;
+            border-left: 4px solid var(--purple-highlights);
+        }
+
+        .keyFindings {
+            background: linear-gradient(135deg, 
+                rgba(141, 45, 223, 0.1), 
+                rgba(255, 157, 141, 0.1));
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+        }
+
+        .keyFindings h4 {
+            color: var(--primary-peach);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1rem;
+        }
+
+        /* 5. DIAGRAMS & VISUALS */
+        .diagramContainer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .diagramContainer h4 {
+            position: absolute;
+            top: -0.8rem;
+            left: 1rem;
+            background: var(--primary-purple);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--purple-highlights);
+        }
+
+        .timelineEvent {
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .timelineEvent::before {
+            content: '●';
+            position: absolute;
+            left: 42px;
+            color: var(--primary-peach);
+            font-size: 1.5rem;
+        }
+
+        .vennDiagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            margin: 2rem 0;
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+
+        .graph {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .axis {
+            stroke: var(--grey-text);
+            stroke-width: 1;
+        }
+
+        .dataPoint {
+            fill: var(--primary-peach);
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legendItem {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legendColor {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .coordinateSystem {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        /* 6. CODE & PROGRAMMING */
+        .testCase {
+            background: rgba(20, 10, 30, 0.8);
+            border-top: 1px solid var(--glass-border);
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .testInput, .testOutput {
+            margin: 0.5rem 0;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .testInput::before {
+            content: 'Input:';
+            position: absolute;
+            left: -4rem;
+            color: var(--info-cyan);
+            font-weight: bold;
+        }
+
+        .testOutput::before {
+            content: 'Output:';
+            position: absolute;
+            left: -4.5rem;
+            color: var(--success-green);
+            font-weight: bold;
+        }
+
+        .apiDocumentation {
+            background: rgba(30, 40, 60, 0.8);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+        }
+
+        .functionSignature {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 3px solid var(--purple-highlights);
+            overflow-x: auto;
+        }
+
+        /* EXISTING STYLES */
+        .intro-section {
+            background: rgba(20, 10, 30, 0.8);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--purple-highlights);
+            text-align: center;
+        }
+
+        .intro-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: var(--light-text);
+            margin-bottom: 1rem;
+        }
+
+        .intro-subtitle {
+            font-size: 1.3rem;
+            color: var(--grey-text);
+            margin-bottom: 2rem;
+        }
+
+        .course-info-card {
+            background: rgba(30, 15, 45, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: inline-flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--light-text);
+            font-family: 'Courier New', monospace;
+            min-width: 80px;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--grey-text);
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .quest-log {
+            background: rgba(20, 10, 30, 0.8);
+            border: 2px solid var(--purple-highlights);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            text-align: left;
+        }
+
+        .quest-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .quest-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            color: var(--light-text);
+        }
+
+        .quest-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--grey-text);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .inventory {
+            margin-bottom: 2rem;
+        }
+
+        .inventory-grid {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .inventory-item {
+            background: rgba(255, 157, 141, 0.1);
+            border: 1px solid var(--primary-peach);
+            color: var(--primary-peach);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Courier New', monospace;
+            color: var(--light-text);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .section-content h2 {
+            font-family: 'Courier New', monospace;
+            color: var(--light-text);
+            margin-top: 2rem;
+            font-size: 1.8rem;
+        }
+
+        .section-content h3 {
+            color: var(--purple-highlights);
+            margin-top: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1.4rem;
+        }
+
+        .section-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content strong {
+            color: var(--primary-peach);
+            font-weight: 700;
+        }
+
+        .section-content em {
+            color: var(--grey-text);
+        }
+
+        /* Existing special content blocks */
+        .theorem {
+            background: linear-gradient(145deg, rgba(30, 40, 60, 0.8), rgba(20, 30, 50, 0.9));
+            border-left: 4px solid #6366f1;
+            color: #e0e7ff;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .analogy {
+            background: linear-gradient(135deg, rgba(255, 157, 141, 0.1), rgba(141, 45, 223, 0.05));
+            border: 1px dashed var(--primary-peach);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .misconception {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--error-red);
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .search-prompt {
+            background: rgba(6, 182, 212, 0.1);
+            border-left: 4px solid var(--info-cyan);
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .example {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .keyTerm {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: #ffca28;
+        }
+
+        /* Quiz styles */
+        .quiz-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-question {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: white;
+            line-height: 1.5;
+            font-family: 'Courier New', monospace;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.2rem;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            background: rgba(141, 45, 223, 0.15);
+            border-color: var(--purple-highlights);
+        }
+
+        /* Fill Blank Question Styles */
+        .fill-blank-question {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .blank-question-text {
+            font-size: 1.3rem;
+            line-height: 2.2;
+            font-family: 'Courier New', monospace;
+        }
+
+        .blank-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-bottom: 2px solid var(--purple-highlights);
+            color: var(--primary-peach);
+            font-size: 1.2rem;
+            padding: 5px 10px;
+            margin: 0 8px;
+            min-width: 120px;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .blank-input:focus {
+            outline: none;
+            background: rgba(141, 45, 223, 0.1);
+            border-bottom-width: 3px;
+        }
+
+        .check-blank-btn {
+            background: linear-gradient(135deg, var(--purple-highlights), var(--primary-peach));
+            color: var(--darker-purple);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(141, 45, 223, 0.3);
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Drag & Drop Styles */
+        .drag-drop-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .drag-items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            min-height: 80px;
+        }
+
+        .drag-item {
+            background: linear-gradient(135deg, rgba(141, 45, 223, 0.2), rgba(141, 45, 223, 0.1));
+            border: 1px solid var(--purple-highlights);
+            color: var(--light-text);
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            cursor: grab;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .drag-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(141, 45, 223, 0.3);
+            background: var(--purple-highlights);
+            color: white;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .drop-zones-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .drop-zone {
+            background: rgba(30, 15, 45, 0.6);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--grey-text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .drop-zone-label {
+            color: var(--grey-text);
+            font-family: 'Merriweather', serif;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropped-item {
+            margin-top: 0.5rem;
+            background: var(--success-green);
+            border-color: var(--success-green);
+            color: #003300;
+            font-weight: bold;
+            animation: popIn 0.3s;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            margin-top: 2rem;
+        }
+
+        .summary-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--purple-highlights), var(--primary-peach));
+        }
+
+        .summary-card h4 {
+            font-family: 'Courier New', monospace;
+            color: var(--primary-peach);
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .summary-card p {
+            color: var(--light-text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Utility classes */
+        .hidden {
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+
+        /* Animation */
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Icon styling */
+        i {
+            margin-right: 0.5rem;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="input-panel">
+            <h2><i class="fas fa-code"></i> JSON Input</h2>
+            <textarea class="json-input" id="jsonInput" placeholder="Paste your course JSON here..."></textarea>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="renderContent()">
+                    <i class="fas fa-play"></i> Render Preview
+                </button>
+                <button class="btn btn-secondary" onclick="loadSample()">
+                    <i class="fas fa-file-code"></i> Load Sample
+                </button>
+                <button class="btn btn-secondary" onclick="clearInput()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                <strong><i class="fas fa-exclamation-circle"></i> Error:</strong>
+                <span id="errorText"></span>
+            </div>
+        </div>
+        
+        <div class="renderer">
+            <div class="renderer-header">
+                <h1 class="course-title" id="courseTitle">Academic Content Preview</h1>
+                <div class="render-info">
+                    <span id="moduleCount">0 modules</span> • <span id="sectionCount">0 sections</span>
+                </div>
+            </div>
+            
+            <div id="previewContainer">
+                <div class="empty-state">
+                    <i class="fas fa-laptop-code"></i>
+                    <h3>No Content Yet</h3>
+                    <p>Paste your JSON in the left panel and click "Render Preview"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample JSON
+        const sampleJSON = {
+            "id": "course_react_advanced_01",
+            "title": "React Internals: The Virtual DOM",
+            "modules": [
+                {
+                    "id": "mod_vdom_01",
+                    "title": "Mastering the Virtual DOM & Reconciliation",
+                    "sections": [
+                        {
+                            "id": "sec_intro",
+                            "type": "intro",
+                            "title": "Why React is Fast 🚀",
+                            "subtitle": "Unlocking the secrets of UI performance",
+                            "courseCode": "REACT-202",
+                            "level": "Intermediate",
+                            "credits": 15,
+                            "objectives": [
+                                "Understand the DOM bottleneck",
+                                "Master the Diffing Algorithm",
+                                "Apply 'Keys' correctly for O(n) performance"
+                            ],
+                            "prerequisites": [
+                                "Basic JavaScript",
+                                "Intro to React",
+                                "Tree Data Structures"
+                            ]
+                        },
+                        {
+                            "id": "sec_concept_1",
+                            "type": "section",
+                            "title": "The Expensive Real DOM",
+                            "estimatedReadingTime": 8,
+                            "content": "<div class='sectionTextContent'><h3>The Problem with Browsers</h3><p>The Document Object Model (DOM) is an interface that allows JavaScript to interact with HTML. However, interacting with the real DOM is computationally expensive.</p><div class='misconception'><strong>Myth:</strong> JavaScript is too slow for complex UIs.<br><strong>Reality:</strong> JavaScript is fast; it's the <em>layout and repainting</em> in the browser that is slow.</div><div class='dataTable comparisonTable'><div class='tableCaption'>Table 1.1: Operation Cost Comparison</div><table><thead class='tableHeader'><tr class='tableRow'><th class='tableCell'>Operation</th><th class='tableCell'>Relative Cost</th><th class='tableCell'>Impact</th></tr></thead><tbody><tr class='tableRow'><td class='tableCell'>JS Object Access</td><td class='tableCell'>~0.0001ms</td><td class='tableCell'>Negligible</td></tr><tr class='tableRow'><td class='tableCell'>DOM Write</td><td class='tableCell'>~0.5ms+</td><td class='tableCell'>Triggers Reflow</td></tr></tbody></table></div><div class='search-prompt'>👁️ <strong>Visual Aid:</strong> Search online for \"Browser Critical Rendering Path diagram\" to see where Reflow happens.</div></div>",
+                            "strugglingContent": "<div class='analogy'><h3>The Carpenter Analogy 🔨</h3><p>Imagine you want to change the layout of your living room. The <strong>Real DOM</strong> is like knocking down walls and rebuilding them—it takes days and costs a fortune (Performance Cost). <br><br>The <strong>Virtual DOM</strong> is like drawing the changes on a blueprint first. Erasing a line on paper is instant. You only call the carpenters once you are 100% sure of the final plan.</p></div>"
+                        },
+                        {
+                            "id": "sec_quiz_1",
+                            "type": "quiz",
+                            "title": "Performance Check ✅",
+                            "description": "Test your knowledge on DOM costs",
+                            "quizType": "multiple-choice",
+                            "questions": [
+                                {
+                                    "id": "q1",
+                                    "question": "According to the comparison table, which operation triggers the costly 'Reflow'?",
+                                    "options": [
+                                        {
+                                            "id": "opt1",
+                                            "text": "Modifying a JavaScript Object",
+                                            "isCorrect": false
+                                        },
+                                        {
+                                            "id": "opt2",
+                                            "text": "Writing to the Real DOM",
+                                            "isCorrect": true
+                                        },
+                                        {
+                                            "id": "opt3",
+                                            "text": "Calculating a variable",
+                                            "isCorrect": false
+                                        }
+                                    ],
+                                    "hint": "Think about which one involves the browser's painting engine.",
+                                    "explanation": "Writing to the Real DOM forces the browser to recalculate layout positions (Reflow) and repaint pixels, which is the performance bottleneck."
+                                }
+                            ]
+                        },
+                        {
+                            "id": "sec_quiz_2",
+                            "type": "quiz",
+                            "title": "Complexity Challenge",
+                            "description": "Fill in the Big O Notation",
+                            "quizType": "fill-blank",
+                            "questions": [
+                                {
+                                    "id": "q2",
+                                    "question": "By using heuristic assumptions, React brings the complexity of tree comparison down from O(n³) to O(<blank>).",
+                                    "correctAnswer": "n",
+                                    "hint": "It becomes linear time.",
+                                    "explanation": "React reduces the complexity to O(n), meaning the time taken grows linearly with the number of elements."
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // DOM Elements
+        const jsonInput = document.getElementById('jsonInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const courseTitle = document.getElementById('courseTitle');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const moduleCount = document.getElementById('moduleCount');
+        const sectionCount = document.getElementById('sectionCount');
+
+        // Load sample JSON
+        function loadSample() {
+            jsonInput.value = JSON.stringify(sampleJSON, null, 2);
+            renderContent();
+        }
+
+        // Clear input
+        function clearInput() {
+            jsonInput.value = '';
+            previewContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-laptop-code"></i>
+                    <h3>No Content Yet</h3>
+                    <p>Paste your JSON in the left panel and click "Render Preview"</p>
+                </div>
+            `;
+            courseTitle.textContent = 'Academic Content Preview';
+            moduleCount.textContent = '0 modules';
+            sectionCount.textContent = '0 sections';
+            hideError();
+        }
+
+        // Show error
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        // Hide error
+        function hideError() {
+            errorMessage.classList.remove('show');
+        }
+
+        // Render content from JSON
+        function renderContent() {
+            try {
+                hideError();
+                
+                const jsonText = jsonInput.value.trim();
+                if (!jsonText) {
+                    showError('Please paste some JSON content first.');
+                    return;
+                }
+                
+                const courseData = JSON.parse(jsonText);
+                
+                // Validate structure
+                if (!courseData.id || !courseData.title || !courseData.modules) {
+                    showError('Invalid JSON structure. Expected: {id, title, modules}');
+                    return;
+                }
+                
+                // Update course title
+                courseTitle.textContent = courseData.title;
+                
+                // Render modules
+                let html = '';
+                let totalSections = 0;
+                
+                courseData.modules.forEach((module, moduleIndex) => {
+                    totalSections += (module.sections || []).length;
+                    html += renderModule(module, moduleIndex);
+                });
+                
+                // Update counts
+                moduleCount.textContent = `${courseData.modules.length} module${courseData.modules.length !== 1 ? 's' : ''}`;
+                sectionCount.textContent = `${totalSections} section${totalSections !== 1 ? 's' : ''}`;
+                
+                previewContainer.innerHTML = html;
+                
+                // Initialize interactive elements
+                initializeInteractivity();
+                
+            } catch (error) {
+                showError(`Invalid JSON: ${error.message}`);
+            }
+        }
+
+        // Render a module
+        function renderModule(module, index) {
+            return `
+                <div class="module" id="module-${index}">
+                    <h2 class="module-title">${module.title || `Module ${index + 1}`}</h2>
+                    ${(module.sections || []).map(section => renderSection(section)).join('')}
+                </div>
+            `;
+        }
+
+        // Render a section based on type
+        function renderSection(section) {
+            switch (section.type) {
+                case 'intro':
+                    return renderIntroSection(section);
+                case 'section':
+                    return renderContentSection(section);
+                case 'quiz':
+                    return renderQuizSection(section);
+                case 'summary':
+                    return renderSummarySection(section);
+                default:
+                    return renderGenericSection(section);
+            }
+        }
+
+        // Render intro section
+        function renderIntroSection(section) {
+            return `
+                <div class="intro-section">
+                    <h1 class="intro-title">${section.title || 'Introduction'}</h1>
+                    ${section.subtitle ? `<p class="intro-subtitle">${section.subtitle}</p>` : ''}
+                    
+                    ${section.courseCode || section.level || section.credits ? `
+                        <div class="course-info-card">
+                            ${section.courseCode ? `<div class="info-badge"><span class="info-label">Code</span>${section.courseCode}</div>` : ''}
+                            ${section.level ? `<div class="info-badge"><span class="info-label">Level</span>${section.level}</div>` : ''}
+                            ${section.credits ? `<div class="info-badge"><span class="info-label">Credits</span>${section.credits}</div>` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    ${section.objectives && section.objectives.length > 0 ? `
+                        <div class="quest-log">
+                            <h3><i class="fas fa-gamepad"></i> Learning Quest</h3>
+                            <ul class="quest-list">
+                                ${section.objectives.map(obj => `
+                                    <li class="quest-item">
+                                        <span class="quest-check"></span>
+                                        ${obj}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    
+                    ${section.prerequisites && section.prerequisites.length > 0 ? `
+                        <div class="inventory">
+                            <h4><i class="fas fa-key"></i> Required Inventory</h4>
+                            <div class="inventory-grid">
+                                ${section.prerequisites.map(req => `
+                                    <span class="inventory-item">${req}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Render content section
+        function renderContentSection(section) {
+            return `
+                <div class="content-section">
+                    <h2 class="section-title">${section.title || 'Content Section'}</h2>
+                    ${section.estimatedReadingTime ? `
+                        <p><em>Estimated reading time: ${section.estimatedReadingTime} minutes</em></p>
+                    ` : ''}
+                    <div class="section-content">
+                        ${section.content || '<p>No content available.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render quiz section
+        function renderQuizSection(section) {
+            let questionsHtml = '';
+            
+            if (section.questions && section.questions.length > 0) {
+                section.questions.forEach((question, qIndex) => {
+                    questionsHtml += renderQuestion(question, section.quizType, qIndex);
+                });
+            } else {
+                questionsHtml = '<p>No questions available.</p>';
+            }
+
+            return `
+                <div class="quiz-section">
+                    <div class="quiz-header">
+                        <h2 class="quiz-title">${section.title || 'Quiz'}</h2>
+                        ${section.description ? `<p class="quiz-description">${section.description}</p>` : ''}
+                    </div>
+                    ${questionsHtml}
+                </div>
+            `;
+        }
+
+        // Render a single question
+        function renderQuestion(question, quizType, index) {
+            switch (quizType) {
+                case 'multiple-choice':
+                    return renderMCQ(question, index);
+                case 'fill-blank':
+                    return renderFillBlank(question, index);
+                case 'drag-drop':
+                    return renderDragDrop(question, index);
+                default:
+                    return renderGenericQuestion(question, index);
+            }
+        }
+
+        // Render multiple choice question
+        function renderMCQ(question, index) {
+            const optionsHtml = (question.options || []).map(option => `
+                <div class="quiz-option ${option.isCorrect ? 'correct' : ''}" 
+                     onclick="this.classList.toggle('selected')">
+                    ${option.text || option}
+                </div>
+            `).join('');
+
+            return `
+                <div class="quiz-question">
+                    <div class="question-text">${index + 1}. ${question.question}</div>
+                    <div class="quiz-options">
+                        ${optionsHtml}
+                    </div>
+                    ${question.explanation ? `
+                        <p><em>${question.explanation}</em></p>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Render fill in the blank question - ADDED THIS FUNCTION
+        function renderFillBlank(question, index) {
+            const blankHtml = question.question.replace(/<blank>/g, 
+                '<input type="text" class="blank-input" placeholder="Your answer">');
+            
+            return `
+                <div class="fill-blank-question">
+                    <div class="question-text">${index + 1}. ${blankHtml}</div>
+                    ${question.correctAnswer ? `
+                        <p><em>Correct answer: ${question.correctAnswer}</em></p>
+                    ` : ''}
+                    ${question.explanation ? `
+                        <p><em>${question.explanation}</em></p>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Render drag and drop question - ADDED THIS FUNCTION
+        function renderDragDrop(question, index) {
+            const pairs = question.options?.pairs || [];
+            
+            return `
+                <div class="quiz-question">
+                    <div class="question-text">${index + 1}. ${question.question}</div>
+                    <div class="drag-drop-container">
+                        <div class="drag-items-container">
+                            ${pairs.map(pair => `
+                                <div class="drag-item" draggable="true">
+                                    ${pair.item}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="drop-zones-container">
+                            ${pairs.map(pair => `
+                                <div class="drop-zone">
+                                    <span class="drop-zone-label">${pair.match}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ${question.explanation ? `
+                        <p><em>${question.explanation}</em></p>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Render generic question
+        function renderGenericQuestion(question, index) {
+            return `
+                <div class="quiz-question">
+                    <div class="question-text">${index + 1}. ${question.question}</div>
+                </div>
+            `;
+        }
+
+        // Render summary section
+        function renderSummarySection(section) {
+            const pointsHtml = (section.points || []).map(point => `
+                <div class="summary-card">
+                    <h4>${point.title}</h4>
+                    <p>${point.content}</p>
+                </div>
+            `).join('');
+
+            return `
+                <div class="content-section summary-section">
+                    <h2 class="section-title">${section.title || 'Summary'}</h2>
+                    ${section.content ? `
+                        <div class="section-content">
+                            ${section.content}
+                        </div>
+                    ` : ''}
+                    ${pointsHtml ? `
+                        <div class="summary-content">
+                            ${pointsHtml}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Render generic section
+        function renderGenericSection(section) {
+            return `
+                <div class="content-section">
+                    <h2 class="section-title">${section.title || 'Section'}</h2>
+                    <div class="section-content">
+                        ${section.content || '<p>No content available.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize interactive elements
+        function initializeInteractivity() {
+            // Make drag items draggable
+            document.querySelectorAll('.drag-item').forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+            });
+            
+            // Make drop zones accept drops
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.textContent);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const data = e.dataTransfer.getData('text/plain');
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.innerHTML += `<div class="drag-item">${data}</div>`;
+            }
+        }
+
+        // Initialize with sample data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSample();
+        });
+    </script>
+</body>
+</html>

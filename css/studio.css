@@ -1,0 +1,429 @@
+/* === STUDIO OVERLAY === */
+.studio-modal {
+  position: fixed; 
+  inset: 0; 
+  background: var(--bg-app); 
+  z-index: 100;
+  display: grid; 
+  grid-template-rows: 60px 1fr; 
+  transform: translateY(100%); 
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.studio-modal.open { 
+  transform: translateY(0); 
+}
+
+.studio-toolbar {
+  border-bottom: 1px solid var(--border-light); 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 0 24px; 
+  background: var(--bg-panel);
+}
+
+.studio-workspace { 
+  display: grid; 
+  grid-template-columns: 450px 1fr; 
+  overflow: hidden; 
+}
+
+/* === EDITOR COLUMN === */
+/* === EDITOR COLUMN (Parent) === */
+.col-edit { 
+  border-right: 1px solid var(--border-light); 
+  display: flex; 
+  flex-direction: column; 
+  background: #0f0f11; 
+  
+  /* CRITICAL FIX: Lock height to the grid cell so children can scroll */
+  height: 100%; 
+  overflow: hidden; 
+  position: relative;
+}
+
+.editor-tools { 
+  flex: 0 0 auto; /* Don't shrink */
+  padding: 10px; 
+  border-bottom: 1px solid var(--border-light); 
+  display: flex; 
+  gap: 6px; 
+  flex-wrap: wrap; 
+  z-index: 10;
+  background: #0f0f11;
+}
+
+/* === VISUAL BUILDER (Scrollable Child) === */
+#visualBuilder {
+  /* CRITICAL FIX: Fill remaining space and scroll internally */
+  flex: 1; 
+  height: auto; /* Let flex handle height */
+  overflow-y: auto; 
+  overflow-x: hidden;
+  
+  padding: 20px;
+  background: #0f0f11;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  scroll-behavior: smooth;
+  
+  /* Ensure padding fits in width */
+  box-sizing: border-box; 
+  width: 100%;
+}
+
+/* Standard Editor (Text Mode) */
+#codeEditor {
+  flex: 1; 
+  background: #0f0f11; 
+  color: #e0e0e0; 
+  border: none; 
+  padding: 20px; 
+  resize: none; /* Disable manual resize */
+  font-family: 'JetBrains Mono', monospace; 
+  font-size: 13px; 
+  line-height: 1.6;
+  
+  /* Ensure it also scrolls */
+  overflow-y: auto;
+}
+
+/* Standard Editor (hidden in Topic mode) */
+#codeEditor {
+  flex: 1; 
+  background: #0f0f11; 
+  color: #e0e0e0; 
+  border: none; 
+  padding: 20px; 
+  resize: none;
+  font-family: 'JetBrains Mono', monospace; 
+  font-size: 13px; 
+  line-height: 1.6;
+}
+
+/* === PREVIEW COLUMN === */
+.col-preview { 
+  background: #18181b; 
+  overflow-y: auto; 
+  padding: 40px; 
+  display: flex; 
+  justify-content: center; 
+}
+
+/* === JSON VALIDATION STATES === */
+.json-status { 
+  font-size: 12px; 
+  padding: 8px 16px; 
+  border-top: 1px solid var(--border-light); 
+}
+.json-valid { color: var(--success); }
+.json-invalid { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+/* === VISUAL BUILDER (SLOT MACHINE) === */
+#visualBuilder {
+  height: 100%;
+  overflow-y: auto; /* Scrollable */
+  padding: 20px;
+  background: #0f0f11;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  scroll-behavior: smooth;
+}
+
+/* Base Slot Style - Dimmed by default */
+.topic-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0; /* Padding handled inside header/body */
+  position: relative;
+  transition: all 0.25s ease;
+  opacity: 0.5; /* Dim inactive slots */
+  transform: scale(0.98);
+  border-left: 4px solid transparent;
+}
+
+.topic-block:hover {
+  opacity: 0.8;
+  border-color: var(--border-hover);
+}
+
+/* === ACTIVE STATE (The Spotlight) === */
+.topic-block.active {
+  opacity: 1;
+  background: #141416;
+  border-color: var(--primary); /* Highlight Border */
+  border-left-color: var(--primary);
+  box-shadow: 0 0 30px rgba(0,0,0,0.5); /* Lift effect */
+  transform: scale(1);
+  z-index: 10;
+}
+
+.topic-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer; /* Click header to activate */
+}
+
+.topic-block.active .topic-block-header {
+  background: var(--primary-dim);
+}
+
+.topic-count {
+  font-size: 11px; 
+  background: #333;
+  color: #ccc; 
+  padding: 3px 8px; 
+  border-radius: 4px; 
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.topic-block.active .topic-count {
+  background: var(--primary);
+  color: white;
+}
+
+.block-controls {
+  display: flex;
+  gap: 8px;
+  opacity: 0.4;
+  transition: 0.2s;
+}
+
+.topic-block:hover .block-controls,
+.topic-block.active .block-controls {
+  opacity: 1;
+}
+
+.btn-mini {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-mini:hover {
+  background: white;
+  color: black;
+}
+
+.field-group {
+  padding: 15px;
+}
+
+/* The JSON Textarea inside a Slot */
+.builder-textarea {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-light);
+  color: #787878; /* Dim text for inactive */
+  padding: 15px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 150px;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  transition: 0.2s;
+}
+
+/* Active textarea pops */
+.topic-block.active .builder-textarea {
+  background: #09090b;
+  color: #a3e635; /* Code Green */
+  border-color: #333;
+  min-height: 400px; /* Expands when active */
+  font-size: 13px;
+}
+
+.builder-textarea:focus {
+  outline: none;
+}
+
+#addTopicBtn {
+  width: 100%;
+  padding: 20px;
+  border: 2px dashed var(--border-light);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+  margin-bottom: 40px;
+}
+
+#addTopicBtn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-dim);
+}
+
+/* === INGESTION PAGE STYLES (Added) === */
+
+/* Layout for the Ingestion View */
+.ingest-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+  height: calc(100vh - 140px); /* Fill screen minus header */
+}
+
+/* The Right Column Container */
+.ingest-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Fix for Small Text Box: Force it to fill available height */
+#rawMode, #stagedMode {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#rawText {
+  flex: 1; /* Grow to fill height */
+  height: 100%;
+  resize: none; /* Disable manual resize, use flex */
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.6;
+  font-size: 14px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-sm);
+  color: #e0e0e0;
+}
+
+#rawText:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Accordion Container Scroll */
+.ingest-results {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Accordion Item Styling */
+.accordion-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.accordion-item:hover {
+  border-color: var(--border-hover);
+}
+
+.accordion-item.active {
+  border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.accordion-header {
+  padding: 15px;
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+}
+
+.accordion-item.active .accordion-header {
+  background: var(--primary-dim);
+  border-bottom-color: var(--border-light);
+}
+
+.accordion-title-display {
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.badge-count {
+  background: #333;
+  color: #aaa;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.accordion-item.active .accordion-icon {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+/* Accordion Body Animation */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+  background: #0f0f11;
+}
+
+.accordion-item.active .accordion-body {
+  max-height: 1000px; /* Arbitrary large height to allow expansion */
+  overflow: visible;
+}
+
+.accordion-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stage-title {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.stage-content {
+  min-height: 200px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.accordion-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-light);
+  padding-top: 10px;
+}

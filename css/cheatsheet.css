@@ -1,0 +1,643 @@
+/* === CHEATSHEET CONTAINER === */
+.cheatsheet-container.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cheatsheet-container .header {
+  background: white;
+  border: 3px solid var(--theme-primary);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(139, 170, 136, 0.15);
+  position: relative;
+}
+
+.cheatsheet-container .header::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 40px;
+  width: 100px;
+  height: 30px;
+  background: linear-gradient(135deg, var(--theme-tape-bg-start) 0%, var(--theme-tape-bg-end) 50%);
+  border-radius: 3px;
+  transform: rotate(-2deg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.cheatsheet-container .header h1 {
+  color: var(--theme-primary);
+  font-size: 2em;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px rgba(163, 199, 164, 0.2);
+}
+
+.cheatsheet-container .header p {
+  text-align: center;
+  color: var(--theme-primary-dark);
+  font-size: 1em;
+  font-family: 'Patrick Hand', cursive;
+}
+
+/* === GRID LAYOUT === */
+.cheatsheet-container .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+/* === CARDS === */
+.cheatsheet-container .card {
+  background: white;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--theme-primary-light);
+  position: relative;
+}
+
+.cheatsheet-container .card::after {
+  content: '📌';
+  position: absolute;
+  top: -12px;
+  right: 25px;
+  font-size: 1.8em;
+  filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+}
+
+.cheatsheet-container .card:nth-child(even)::after {
+  right: auto;
+  left: 25px;
+}
+
+.cheatsheet-container .card h2 {
+  color: var(--theme-primary);
+  font-size: 1em;
+  margin-bottom: 18px;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.cheatsheet-container .card h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(to right, var(--theme-primary-light) 0%, transparent 100%);
+  border-radius: 2px;
+}
+
+.cheatsheet-container .card ul {
+  list-style: none;
+  line-height: 2;
+}
+
+.cheatsheet-container .card li {
+  
+  position: relative;
+  color: #4a5a4a;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+  margin-left: 5px;
+}
+
+.cheatsheet-container .card li::before {
+  content: '✦';
+  position: absolute;
+  left: -20px;
+  color: var(--theme-primary-light);
+  font-size: 1.1em;
+}
+
+/* === STICKY NOTES === */
+.cheatsheet-container .sticky-note {
+  background: linear-gradient(135deg, var(--note-yellow-bg) 0%, #fdf6dc 100%);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transform: rotate(-1.5deg);
+  position: relative;
+}
+
+.cheatsheet-container .sticky-note:nth-child(even) {
+  transform: rotate(1.5deg);
+  background: linear-gradient(135deg, var(--note-red-bg) 0%, #ffe8e8 100%);
+}
+
+.cheatsheet-container .sticky-note::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 25px;
+  background: linear-gradient(to bottom, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.15) 100%);
+  border-radius: 3px;
+}
+
+.cheatsheet-container .sticky-note h3 {
+  color: var(--note-yellow-border);
+  font-family: 'Caveat', cursive;
+  font-size: 1.8em;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.cheatsheet-container .sticky-note:nth-child(even) h3 {
+  color: var(--note-red-border);
+}
+
+.cheatsheet-container .sticky-note p {
+  color: var(--note-yellow-text);
+  font-size: 0.95em;
+  line-height: 1.8;
+  font-family: 'Patrick Hand', cursive;
+}
+
+/* === CODE BOX === */
+.cheatsheet-container .code-box {
+  background: white;
+  border: 3px solid var(--theme-primary);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.cheatsheet-container .code-box::before {
+  content: '💻 Code';
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--theme-primary);
+  color: white;
+  padding: 8px 16px;
+  font-size: 0.85em;
+  font-weight: 600;
+  border-radius: 0 0 10px 0;
+  z-index: 1;
+}
+
+.cheatsheet-container .code-box pre {
+  background: var(--code-bg);
+  color: var(--theme-primary-light);
+  padding: 45px 25px 25px 25px;
+  margin: 0;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  line-height: 1.8;
+}
+
+/* === TABLE BOX === */
+.cheatsheet-container .table-box {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.cheatsheet-container .table-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cheatsheet-container .table-box h3 {
+  background: linear-gradient(to bottom, var(--theme-primary-light) 0%, var(--theme-primary) 100%);
+  color: #564a5a !important;
+}
+
+.cheatsheet-container .table-box th {
+  background: linear-gradient(to bottom, var(--theme-primary-light) 0%, var(--theme-primary) 100%);
+  color: #5f7161 !important;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.cheatsheet-container .table-box td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--theme-primary-lighter);
+  color: #4a5a4a;
+}
+
+.cheatsheet-container .table-box tr:nth-child(even) td {
+  background: #f1fbf4;
+}
+
+/* === COMPARISON BOX === */
+.cheatsheet-container .comparison-box {
+  background: white;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  border-left: 6px solid var(--theme-primary);
+}
+
+.cheatsheet-container .comparison-box h3 {
+  color: var(--theme-primary);
+  font-size: 1.4em;
+  margin-bottom: 20px;
+}
+
+.cheatsheet-container .comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.cheatsheet-container .comparison-item {
+  padding: 15px;
+  background: var(--theme-primary-bg);
+  border-radius: 10px;
+  border: 2px solid var(--theme-primary-lighter);
+}
+
+.cheatsheet-container .comparison-item h4 {
+  color: var(--theme-primary-dark);
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
+.cheatsheet-container .comparison-item p {
+  color: #4a5a4a;
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+/* === TIMELINE BOX === */
+.cheatsheet-container .timeline-box {
+  background: white;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.cheatsheet-container .timeline-item {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.cheatsheet-container .timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -25px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--theme-primary-light), var(--theme-primary-lighter));
+}
+
+.cheatsheet-container .timeline-item:last-child::before {
+  display: none;
+}
+
+.cheatsheet-container .timeline-marker {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--theme-primary-light), var(--theme-primary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(139, 170, 136, 0.3);
+}
+
+.cheatsheet-container .timeline-content {
+  flex: 1;
+  padding-top: 5px;
+}
+
+.cheatsheet-container .timeline-content h4 {
+  color: var(--theme-primary);
+  font-size: 1.2em;
+  margin-bottom: 8px;
+}
+
+.cheatsheet-container .timeline-content p {
+  color: #4a5a4a;
+  line-height: 1.6;
+}
+
+/* === CALLOUT BOX === */
+.cheatsheet-container .callout-box {
+  background: linear-gradient(135deg, var(--theme-callout-bg-start) 0%, var(--theme-callout-bg-end) 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  border-left: 5px solid var(--theme-primary);
+  position: relative;
+}
+
+.cheatsheet-container .callout-box::before {
+  content: '💡';
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  font-size: 2em;
+  filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+}
+
+.cheatsheet-container .callout-box h3 {
+  color: var(--theme-primary-dark);
+  font-size: 1.4em;
+  margin-bottom: 12px;
+  margin-top: 10px;
+}
+
+.cheatsheet-container .callout-box p {
+  color: #4a5a4a;
+  line-height: 1.8;
+}
+
+/* === FORMULA BOX === */
+.cheatsheet-container .formula-box {
+  background: white;
+  border: 3px dashed var(--theme-primary-light);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.cheatsheet-container .formula-box .formula {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3em;
+  color: var(--theme-primary);
+  font-weight: 600;
+  margin: 15px 0;
+  padding: 15px;
+  background: var(--theme-primary-bg);
+  border-radius: 10px;
+}
+
+.cheatsheet-container .formula-box .description {
+  color: var(--theme-primary-dark);
+  font-size: 0.95em;
+  font-style: italic;
+}
+
+.cheatsheet-container .card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--theme-primary-light);
+  break-inside: avoid; /* Prevent print splitting */
+}
+
+.cheatsheet-container .card h2 {
+  color: var(--theme-primary-dark);
+  font-size: 1.2em;
+  margin-bottom: 12px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--theme-primary-lighter);
+  padding-bottom: 5px;
+}
+
+.cheatsheet-container .card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cheatsheet-container .card li {
+  padding: 4px 0;
+  color: #4a5a4a;
+  font-size: 0.95em;
+  line-height: 1.5;
+  border-bottom: 1px dashed rgba(0,0,0,0.05);
+}
+
+.cheatsheet-container .card li:last-child {
+  border-bottom: none;
+}
+
+/* Definition Style inside Cards */
+.cheatsheet-container .card li strong {
+  color: var(--theme-primary-dark);
+  font-weight: 700;
+  margin-right: 5px;
+}
+
+/* === TABLE BOX (Optimized for Specs) === */
+.cheatsheet-container .table-box {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid var(--theme-primary-light);
+  margin-bottom: 20px;
+  break-inside: avoid;
+}
+
+.cheatsheet-container .table-box table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.cheatsheet-container .table-box th {
+  background: var(--theme-primary-light);
+  color: white;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap; /* Keep headers on one line if possible */
+}
+
+.cheatsheet-container .table-box td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+  vertical-align: top;
+}
+
+.cheatsheet-container .table-box tr:nth-child(even) {
+  background: #fafafc;
+}
+
+/* === NOTE BOX === */
+.cheatsheet-container .sticky-note {
+  background: #fff9c4; /* Classic yellow note */
+  border: 1px solid #f9a825;
+  padding: 15px;
+  border-radius: 2px; /* Square corners like post-it */
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.1em;
+  color: #333;
+  transform: rotate(-1deg); /* Slight tilt */
+}
+
+.cheatsheet-container .sticky-note h3 {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #f57f17;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.3em;
+}
+
+/* Handle newlines in notes better */
+.note-content strong {
+  display: block;
+  margin-top: 8px;
+  text-decoration-style: wavy;
+  text-decoration-color: #f9a825;
+}
+
+/* === COMPARISON GRID === */
+.cheatsheet-container .comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.cheatsheet-container .comparison-item {
+  background: var(--theme-primary-bg);
+  border: 1px solid var(--theme-primary-light);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.cheatsheet-container .comparison-item h4 {
+  color: var(--theme-primary-dark);
+  font-size: 1em;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.cheatsheet-container .comparison-item p {
+  font-size: 0.9em;
+  color: #555;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.math-inline {
+  font-family: 'Times New Roman', Times, serif;
+  font-style: italic;
+  font-weight: 500;
+  color: #111;
+  padding: 0 2px;
+  /* Prevent line break inside short formulas */
+  white-space: nowrap; 
+}
+
+.math-inline sub, .math-inline sup {
+  font-style: normal; /* Indices usually upright */
+  font-size: 0.75em;
+}
+
+/* Formula Box Specifics */
+.cheatsheet-container .formula-box {
+  background: #fdfdfe;
+  border: 1px solid var(--theme-primary-light);
+  border-left: 4px solid var(--theme-primary);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  break-inside: avoid;
+}
+
+.cheatsheet-container .formula {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.4em;
+  text-align: center;
+  margin: 10px 0;
+  color: #222;
+  background: rgba(0,0,0,0.03);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.cheatsheet-container .description {
+  font-size: 0.9em;
+  color: #555;
+  line-height: 1.4;
+}
+
+.cheatsheet-container .math-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.3em; /* Larger than text */
+  margin: 15px 0;
+  color: var(--theme-primary-dark);
+  background: rgba(0,0,0,0.02); /* Very subtle highlight */
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.cheatsheet-container .math-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.4em;
+  margin: 20px 0;
+  color: var(--theme-primary-dark);
+  background: rgba(0,0,0,0.02);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* === INLINE MATH === */
+.cheatsheet-container .math-inline {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.15em;
+  color: var(--theme-primary-dark);
+  padding: 0 2px;
+}
+
+/* === FRACTION STRUCTURE === */
+.cheatsheet-container .fraction {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle; /* Aligns center with the equals sign */
+  text-align: center;
+  margin: 0 8px;
+  font-size: 0.9em;
+}
+
+.cheatsheet-container .num {
+  border-bottom: 1px solid currentColor; /* Matches text color */
+  padding: 0 5px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.cheatsheet-container .den {
+  padding: 0 5px;
+  display: block;
+}
+
+/* Sup/Sub sizing fix */
+.math-block sup, .math-inline sup { font-size: 0.7em; }
+.math-block sub, .math-inline sub { font-size: 0.7em; }
+

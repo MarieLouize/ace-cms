@@ -1,0 +1,370 @@
+/* === PROBLEM SHEET CONTAINER === */
+.problems-container.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  /* Soft Dark Green Text (instead of harsh black) */
+  color: #2c3e30; 
+  font-family: 'Inter', sans-serif;
+  line-height: 1.7;
+}
+
+.problems-container * {
+  box-sizing: border-box;
+}
+
+/* === HEADER (Green Gradient & Softness) === */
+.problems-container .header {
+  /* Subtle Green Gradient */
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 3px solid var(--theme-primary);
+  border-radius: 20px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 30px rgba(74, 222, 128, 0.15); /* Greenish Glow */
+  position: relative;
+  text-align: center;
+}
+
+.problems-container .header h1 {
+  color: var(--theme-primary); /* Uses your main green */
+  font-family: 'Patrick Hand', cursive;
+  font-size: 2.8em;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.problems-container .header p {
+  color: #15803d; /* Dark Green Text */
+  font-size: 1.3em;
+  font-family: 'Patrick Hand', cursive;
+  opacity: 0.9;
+}
+
+/* === SECTION TITLES === */
+.problems-container .section-title-wrapper {
+  margin: 35px 0 25px 0;
+  text-align: center;
+  position: relative;
+}
+
+.problems-container .section-title {
+  color: #166534; /* Deep Green */
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.8em;
+  font-weight: 700;
+  display: inline-block;
+  background: white;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+  border-radius: 20px;
+}
+
+/* Dotted Line Behind Title */
+.problems-container .section-title-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-top: 3px dotted #bbf7d0;
+  z-index: 1;
+}
+
+/* === QUESTION WRAPPERS === */
+.problems-container .question-wrapper {
+  background: rgb(240, 253, 244, 0.4);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.02);
+  /* Very subtle green tint border */
+  border: 2px solid #ecfdf5; 
+  position: relative;
+  page-break-inside: avoid;
+  transition: transform 0.2s ease;
+}
+
+.problems-container .question-wrapper:hover {
+  border-color: #78d69b; /* Bright green on hover */
+  box-shadow: 0 8px 20px rgba(74, 222, 128, 0.1);
+}
+
+.problems-container .question-wrapper::after {
+  content: '📌'; /* Leaf icon */
+  position: absolute;
+  top: -15px;
+  right: 25px;
+  font-size: 1.8em;
+  transform: rotate(15deg);
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,0.05));
+}
+
+.problems-container .question-text {
+  /* FIX: Use a softer, deep green-grey instead of black */
+  color: #405542; 
+  font-size: 1.1em;
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
+
+/* === MULTIPLE CHOICE (Green Fills) === */
+.problems-container .options {
+  display: grid;
+  gap: 12px;
+}
+
+.problems-container .option {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  /* FIX: Mint Green Background */
+  background: #f0fdf4; 
+  border: 2px solid #dcfce7; 
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Text Color */
+  color: #14532d !important; /* Deep Green Text */
+  font-weight: 500;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2em;
+}
+
+.problems-container .option:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  transform: scale(1.01);
+}
+
+.problems-container .custom-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid #86efac;
+  border-radius: 8px;
+  margin-right: 15px;
+  background: white;
+  flex-shrink: 0;
+}
+
+/* === TRUE/FALSE === */
+.problems-container .tf-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.problems-container .tf-text {
+  flex: 1;
+  color: #2f3e35;
+  font-weight: 500;
+  font-size: 1.05em;
+}
+
+.problems-container .tf-options {
+  display: flex;
+  gap: 12px;
+}
+
+.problems-container .tf-box {
+  width: 48px;
+  height: 48px;
+  border: 2.5px solid #86efac;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Patrick Hand', cursive;
+  font-weight: 700;
+  font-size: 1.4em;
+  color: #15803d;
+  background: #f0fdf4; /* Mint Fill */
+  box-shadow: 0 4px 0 #bbf7d0; /* 3D Green */
+  transition: transform 0.1s;
+}
+
+.problems-container .tf-box:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+/* === FILL IN BLANKS === */
+.problems-container .blank-input {
+  display: inline-block;
+  min-width: 120px;
+  border: none;
+  border-bottom: 3px dashed #4ade80; /* Bright Green Dash */
+  /* Light Green Highlight Background */
+  background: rgba(187, 247, 208, 0.4); 
+  height: 1.6em;
+  margin: 0 8px;
+  vertical-align: bottom;
+  border-radius: 4px;
+}
+
+/* === SHORT ANSWER === */
+.problems-container .short-answer {
+  width: 100%;
+  min-height: 120px;
+  padding: 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.3em;
+  line-height: 1.5;
+  color: #374151;
+  margin-top: 15px;
+  resize: none;
+  /* Green tinted notebook lines */
+  background: repeating-linear-gradient(#ffffff, #ffffff 30px, #f0fdf4 31px);
+  background-attachment: local;
+}
+
+/* === MATCHING === */
+.problems-container .matching-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 15px;
+}
+
+.problems-container .matching-column {
+  /* Mint Container */
+  background: #f0fdf4;
+  padding: 15px;
+  border-radius: 16px;
+  border: 2px dashed #bbf7d0;
+}
+
+.problems-container .matching-column h4 {
+  color: #15803d;
+  margin-bottom: 15px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.problems-container .matching-item {
+  background: white;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #dcfce7;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95em;
+  color: #14532d;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.problems-container .match-letter {
+  background: #22c55e; /* Vibrant Green */
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Patrick Hand', cursive;
+  font-weight: 700;
+  font-size: 1.1em;
+  flex-shrink: 0;
+}
+
+.problems-container .answer-line {
+  width: 50px;
+  height: 2px;
+  background: #86efac;
+  flex-shrink: 0;
+}
+
+/* === RANKING === */
+.problems-container .ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 18px;
+  /* Mint Background */
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  
+  color: #14532d !important;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2em;
+}
+
+.problems-container .rank-box {
+  width: 36px;
+  height: 36px;
+  border: 2px dashed #4ade80;
+  border-radius: 8px;
+  background: white;
+  flex-shrink: 0;
+}
+
+/* === CODE BLOCK === */
+.problems-container .code-question {
+  margin-top: 20px;
+  background: #1e293b; /* Dark Slate */
+  color: #a3e635; /* Lime Green Text */
+  padding: 25px;
+  border-radius: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  line-height: 1.6;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #4ade80;
+}
+
+/* Mac-style window dots */
+.problems-container .code-question::before {
+  content: '● ● ●';
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  font-size: 10px;
+  color: #ef4444; 
+  letter-spacing: -2px;
+  text-shadow: 12px 0 #eab308, 24px 0 #22c55e;
+}
+
+.problems-container .code-question pre {
+  margin-top: 15px;
+  white-space: pre-wrap;
+}
+
+.math-inline {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.15em; /* Slightly larger than text for readability */
+  padding: 0 2px;
+  color: #166534; /* Deep Green matches your theme */
+  white-space: nowrap; /* Prevent breaking equations */
+}
+
+/* Fix subscripts/superscripts line-height issues */
+.math-inline sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+}
+
+.math-inline sup {
+  font-size: 0.75em;
+  vertical-align: super;
+}
+
+/* Fraction slash spacing */
+.math-inline sup + sub {
+  margin-left: -2px; 
+}

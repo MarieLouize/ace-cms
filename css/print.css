@@ -1,0 +1,148 @@
+/* === PRINT SYSTEM (PORTAL METHOD) === */
+
+/* Default: Hide the printable area on screen */
+#printable-area {
+  display: none;
+}
+
+@media print {
+  /* 1. NUCLEAR OPTION: Hide everything by default */
+  body > * {
+      display: none !important;
+  }
+
+  /* 2. Show ONLY the Printable Area */
+  #printable-area {
+      display: block !important;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      z-index: 99999; /* Top of the world */
+  }
+
+  /* 3. Global Print Reset */
+  html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: white;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+  }
+
+  /* 4. Page Break Logic */
+  .a4-page {
+      page-break-after: always;
+      break-after: page;
+      margin: 0 !important;
+      box-shadow: none !important;
+      border: none !important;
+      width: 210mm !important;
+      height: 297mm !important;
+      overflow: hidden !important;
+  }
+}
+
+/* === A4 PAGE STYLING (Shared Screen/Print) === */
+.a4-page {
+  width: 210mm;
+  height: 297mm;
+  background: white;
+  margin: 0 auto 40px auto;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* HEADER */
+.pdf-header {
+  flex: 0 0 auto;
+  height: 35mm;
+  padding: 10mm 15mm 0 15mm;
+  background: linear-gradient(to right, #f7fcf7, white);
+  border-bottom: 2px solid var(--theme-primary-lighter);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.pdf-brand-group { display: flex; flex-direction: column; }
+.pdf-logo { font-size: 16pt; font-weight: 800; color: #2d3436; letter-spacing: -0.5px; }
+.pdf-logo span { color: var(--primary); }
+.pdf-tagline { font-size: 8pt; color: #666; font-family: sans-serif; margin-top: 2px; text-transform: uppercase; }
+
+.pdf-meta { text-align: right; }
+.pdf-page-badge { background: var(--theme-primary); color: white; font-size: 8pt; font-weight: 600; padding: 3px 8px; border-radius: 4px; display: inline-block; }
+.pdf-course-id { display: block; font-size: 8pt; color: #999; margin-top: 4px; font-family: monospace; }
+
+/* CONTENT (Flexible Middle) */
+.pdf-content-area {
+  flex: 1; /* Grow to take up all space */
+  padding: 10mm 15mm;
+  overflow: hidden;
+  position: relative;
+}
+
+/* FOOTER (Fixed Bottom) */
+.pdf-footer {
+  flex: 0 0 auto;
+  height: 25mm;
+  padding: 0 15mm;
+  background: #fcfcfc;
+  border-top: 1px solid #eee;
+  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: #666;
+  margin-top: auto;
+  z-index: 5;
+}
+
+.footer-left { display: flex; flex-direction: column; gap: 2px; }
+.footer-brand { font-weight: 700; color: #2d3436; }
+.footer-sub { font-size: 7pt; color: #999; font-style: italic; }
+
+/* NEW CTA TEXT STYLE */
+.footer-cta-text {
+  font-size: 9pt;
+  color: #333;
+  background: rgba(0,0,0,0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+}
+
+.footer-cta-text strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+.cta-text { font-size: 8pt; font-weight: 600; color: #333; }
+.cta-qr-mock { width: 18px; height: 18px; background: #333; border-radius: 2px; }
+
+.pdf-watermark {
+  position: absolute;
+  bottom: 30mm;
+  right: 15mm;
+  font-size: 60pt;
+  font-weight: 900;
+  color: rgba(0,0,0,0.03);
+  pointer-events: none;
+  z-index: 0;
+  transform: rotate(-10deg);
+}
+
+/* Override components for print clarity */
+.cheatsheet-container .card, 
+.problems-container .question-wrapper {
+  box-shadow: none; border: 1px solid #ddd; margin-bottom: 0 !important; break-inside: avoid;
+}
+.cheatsheet-container .sticky-note {
+  transform: rotate(0deg) !important; box-shadow: none; border: 1px dashed var(--note-yellow-border);
+}

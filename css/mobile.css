@@ -1,0 +1,163 @@
+/* === RESPONSIVE OVERRIDES === */
+
+/* Helper classes */
+.desktop-only { display: block; }
+.desktop-hidden { display: none !important; }
+
+/* === MOBILE & TABLET (Max 900px) === */
+@media (max-width: 900px) {
+    
+    /* --- UTILITIES --- */
+    .desktop-only { display: none !important; }
+    .desktop-hidden { display: flex !important; }
+    
+    /* --- HEADER --- */
+    .app-header {
+        padding: 0 15px;
+        height: 55px;
+    }
+    .logo { font-size: 16px; }
+    .nav-item { padding: 6px 12px; font-size: 12px; }
+
+    /* --- LAYOUT GRID RESET --- */
+    .view { padding: 15px; }
+    .glass-panel { padding: 15px; }
+    
+    /* Ingestion View */
+    .ingest-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    /* Make editor area tall on mobile */
+    .ingest-editor #rawText,
+    .ingest-editor #accordionContainer {
+        height: 50vh !important;
+        min-height: 400px;
+    }
+
+    .drop-zone { height: 120px; }
+    .meta-tag { font-size: 11px; margin-bottom: 6px; }
+    
+    /* Library View */
+    .filter-bar {
+        grid-template-columns: 1fr; /* Stack search and button */
+    }
+    .chapter-grid {
+        grid-template-columns: 1fr; /* Single column cards */
+    }
+
+    /* --- STUDIO MODAL --- */
+    .studio-workspace {
+        display: block; /* Remove Grid */
+        position: relative;
+        height: calc(100vh - 110px); /* Adjust for header + tabs */
+    }
+
+    .studio-toolbar {
+        padding: 0 15px;
+        height: 55px;
+    }
+    
+    .truncate-text {
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Mobile Tabs */
+    .mobile-tabs {
+        display: flex;
+        background: #0f0f11;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .mobile-tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+    }
+    
+    .mobile-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .mobile-view {
+        display: none;
+        height: 100%;
+        overflow-y: auto;
+    }
+    
+    .mobile-view.active {
+        display: block;
+    }
+
+    /* Columns Reset */
+    .col-edit, .col-preview {
+        border: none;
+        padding: 15px;
+    }
+    
+    /* Make textareas legible on phone */
+    #codeEditor, .builder-textarea {
+        font-size: 14px; 
+        padding: 15px;
+        white-space: pre-wrap; /* Allow wrapping on small screens */
+        word-break: break-word;
+    }
+
+    /* Floating Save Button */
+    .mobile-fab {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 56px;
+        height: 56px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        z-index: 100;
+        cursor: pointer;
+    }
+    .mobile-fab:active { transform: scale(0.95); }
+
+    /* --- PDF PREVIEW SCALING FOR MOBILE --- */
+    #previewContainer {
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #525659;
+        padding: 20px 0;
+    }
+
+    /* Scale the A4 page down to fit phone screen */
+    #previewContainer .a4-page {
+        transform-origin: top center;
+        /* A4 is ~800px wide. Mobile is ~360px. Scale ~0.45 */
+        transform: scale(0.42); 
+        margin-bottom: -150% !important; /* Pull up empty space caused by scaling */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    @media (min-width: 500px) {
+        #previewContainer .a4-page {
+            transform: scale(0.65);
+            margin-bottom: -90% !important;
+        }
+    }
+}
