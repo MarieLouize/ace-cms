@@ -1,6 +1,14 @@
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 const CONFIG = {
-  api: 'http://localhost:3000/content'
+    // If on localhost, use local backend. Otherwise, use Render.
+    api: isLocal 
+        ? 'http://localhost:3000/content' 
+        : 'https://acepadi.onrender.com/content'
 };
+
+// Console log to verify connection source
+console.log(`🚀 App running in ${isLocal ? 'Local' : 'Production'} mode. Connected to: ${CONFIG.api}`);
 
 // --- 1. CORE STATE MANAGER ---
 const State = {
